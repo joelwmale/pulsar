@@ -3,6 +3,7 @@ export interface Mailbox {
   username: string
   created_at: string
   email_count: number
+  unread_count: number
 }
 
 export interface Email {
@@ -58,6 +59,7 @@ export interface WindowAPI {
   getEmail: (emailId: number) => Promise<EmailDetail>
   markAsRead: (emailId: number) => Promise<void>
   deleteEmail: (emailId: number) => Promise<void>
+  getTotalUnreadCount: () => Promise<number>
   onNewEmail: (callback: (data: { mailboxId: number; emailId: number; from: string; subject: string }) => void) => void
   removeNewEmailListener: () => void
 }

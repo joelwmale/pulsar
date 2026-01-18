@@ -85,7 +85,14 @@ export function App() {
                     {mailboxes.find((m) => m.id === selectedMailboxId)?.username}
                   </h2>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    {emails.length} {emails.length === 1 ? 'email' : 'emails'}
+                    {(() => {
+                      const mailbox = mailboxes.find((m) => m.id === selectedMailboxId)
+                      if (!mailbox) return `${emails.length} ${emails.length === 1 ? 'email' : 'emails'}`
+                      if (mailbox.unread_count > 0) {
+                        return `${mailbox.unread_count} unread of ${mailbox.email_count} total`
+                      }
+                      return `${mailbox.email_count} ${mailbox.email_count === 1 ? 'email' : 'emails'}`
+                    })()}
                   </p>
                 </div>
                 <div className="flex-1 overflow-y-auto">

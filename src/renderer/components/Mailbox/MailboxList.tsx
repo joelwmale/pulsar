@@ -56,14 +56,16 @@ export function MailboxList({
               {mailbox.username}
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
-              {mailbox.email_count} {mailbox.email_count === 1 ? 'email' : 'emails'}
+              {mailbox.unread_count > 0
+                ? `${mailbox.unread_count} unread`
+                : `${mailbox.email_count} ${mailbox.email_count === 1 ? 'email' : 'emails'}`}
             </div>
           </div>
 
-          {mailbox.email_count > 0 && (
+          {mailbox.unread_count > 0 && (
             <div className="ml-2 flex-shrink-0">
               <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-600 rounded-full">
-                {mailbox.email_count}
+                {mailbox.unread_count}
               </span>
             </div>
           )}

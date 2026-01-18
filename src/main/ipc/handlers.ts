@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
-import { getMailboxes } from '../database/mailbox'
+import { getMailboxes, getTotalUnreadCount } from '../database/mailbox'
 import { getEmails, getEmail, markAsRead, deleteEmail } from '../database/email'
+import { updateBadgeCount } from '../index'
 
 /**
  * Register all IPC handlers for communication between main and renderer processes
@@ -40,6 +41,7 @@ export function registerIPCHandlers(): void {
   ipcMain.handle('mark-as-read', async (_event, emailId: number) => {
     try {
       markAsRead(emailId)
+      updateBadgeCount()
     } catch (error) {
       console.error('Error marking email as read:', error)
       throw error
@@ -50,8 +52,19 @@ export function registerIPCHandlers(): void {
   ipcMain.handle('delete-email', async (_event, emailId: number) => {
     try {
       deleteEmail(emailId)
+      updateBadgeCount()
     } catch (error) {
       console.error('Error deleting email:', error)
+      throw error
+    }
+  })
+
+  // Get total unread count
+  ipcMain.handle('get-total-unread-count', async () => {
+    try {
+      return getTotalUnreadCount()
+    } catch (error) {
+      console.error('Error getting total unread count:', error)
       throw error
     }
   })

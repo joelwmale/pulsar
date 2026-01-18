@@ -3,8 +3,31 @@ import path from 'path'
 import { initDatabase, closeDatabase } from './database/db'
 import { startSMTPServer, stopSMTPServer } from './smtp/server'
 import { registerIPCHandlers } from './ipc/handlers'
+import { getTotalUnreadCount } from './database/mailbox'
 
 let mainWindow: BrowserWindow | null = null
+
+/**
+ * Update the dock/taskbar badge with unread count
+ */
+export function updateBadgeCount() {
+  const count = getTotalUnreadCount()
+
+  if (process.platform === 'darwin') {
+    // macOS dock badge
+    app.dock.setBadge(count > 0 ? count.toString() : '')
+  } else if (process.platform === 'win32' && mainWindow) {
+    // Windows taskbar overlay
+    if (count > 0) {
+      // You could create a badge icon here if desired
+      mainWindow.setOverlayIcon(null, count.toString())
+    } else {
+      mainWindow.setOverlayIcon(null, '')
+    }
+  }
+
+  console.log(`Badge count updated: ${count}`)
+}
 
 /**
  * Create the main application window
@@ -59,6 +82,10 @@ app.whenReady().then(async () => {
     // Create window
     createWindow()
     console.log('✓ Application window created')
+
+    // Initialize badge count
+    updateBadgeCount()
+    console.log('✓ Badge count initialized')
 
     console.log('\n🚀 Pulsar is ready!')
     console.log('📧 SMTP server listening on 127.0.0.1:2500\n')

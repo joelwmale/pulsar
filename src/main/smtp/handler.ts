@@ -5,6 +5,7 @@ import { getOrCreateMailbox } from '../database/mailbox'
 import { saveEmail, saveAttachments } from '../database/email'
 import type { ParsedAttachment } from '../../types'
 import { BrowserWindow } from 'electron'
+import { updateBadgeCount } from '../index'
 
 /**
  * Handle incoming email data from SMTP server
@@ -66,6 +67,9 @@ export async function handleEmail(
 
       saveAttachments(emailId, attachments)
     }
+
+    // Update badge count
+    updateBadgeCount()
 
     // Notify renderer process about new email
     const mainWindow = BrowserWindow.getAllWindows()[0]

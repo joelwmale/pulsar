@@ -42,7 +42,8 @@ export function getMailboxes(): Mailbox[] {
         m.id,
         m.username,
         m.created_at,
-        COUNT(e.id) as email_count
+        COUNT(e.id) as email_count,
+        COALESCE(SUM(CASE WHEN e.is_read = 0 THEN 1 ELSE 0 END), 0) as unread_count
       FROM mailboxes m
       LEFT JOIN emails e ON m.id = e.mailbox_id
       GROUP BY m.id
@@ -72,4 +73,17 @@ export function incrementEmailCount(mailboxId: number): void {
 
   db.prepare('UPDATE mailboxes SET email_count = email_count + 1 WHERE id = ?')
     .run(mailboxId)
+}
+
+/**
+ * Get total unread email count across all mailboxes
+ */
+export function getTotalUnreadCount(): number {
+  const db = getDatabase()
+
+  const result = db
+    .prepare('SELECT COUNT(*) as count FROM emails WHERE is_read = 0')
+    .get() as { count: number }
+
+  return result.count
 }
