@@ -36,7 +36,9 @@ export function EmailList({
   }
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
+    // SQLite returns timestamps in local time format: "YYYY-MM-DD HH:MM:SS"
+    // We need to parse it as local time, not UTC
+    const date = new Date(dateStr.replace(' ', 'T'))
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / 60000)

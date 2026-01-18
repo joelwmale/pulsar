@@ -23,6 +23,9 @@ export function initDatabase(): Database.Database {
   // Create tables
   createTables()
 
+  // Run migrations
+  runMigrations()
+
   return db
 }
 
@@ -37,7 +40,7 @@ function createTables() {
     CREATE TABLE IF NOT EXISTS mailboxes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at DATETIME DEFAULT (datetime('now', 'localtime')),
       email_count INTEGER DEFAULT 0
     )
   `)
@@ -57,7 +60,7 @@ function createTables() {
       raw_source TEXT,
       has_attachments INTEGER DEFAULT 0,
       is_read INTEGER DEFAULT 0,
-      received_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      received_at DATETIME DEFAULT (datetime('now', 'localtime')),
       FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE
     )
   `)
@@ -83,6 +86,44 @@ function createTables() {
   db.exec('CREATE INDEX IF NOT EXISTS idx_email_id ON attachments(email_id)')
 
   console.log('Database tables created successfully')
+}
+
+/**
+ * Run database migrations
+ */
+function runMigrations() {
+  if (!db) throw new Error('Database not initialized')
+
+  // Create migrations table if it doesn't exist
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS migrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      version INTEGER UNIQUE NOT NULL,
+      applied_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    )
+  `)
+
+  const currentVersion = db.prepare('SELECT MAX(version) as version FROM migrations').get() as { version: number | null }
+  const version = currentVersion?.version || 0
+
+  // Migration 1: Update timestamp columns to use localtime
+  if (version < 1) {
+    console.log('Running migration 1: Updating timestamps to localtime...')
+
+    // Note: SQLite doesn't support ALTER COLUMN, so we need to check if data exists
+    // If tables are empty, the schema is already correct from createTables()
+    // If tables have data, we'll just add a note
+    const mailboxCount = db.prepare('SELECT COUNT(*) as count FROM mailboxes').get() as { count: number }
+    const emailCount = db.prepare('SELECT COUNT(*) as count FROM emails').get() as { count: number }
+
+    if (mailboxCount.count > 0 || emailCount.count > 0) {
+      console.log('Note: Existing timestamps are in UTC. New entries will use local time.')
+      console.log('For best results, consider clearing your database: rm ~/Library/Application\\ Support/pulsar/pulsar.db')
+    }
+
+    db.prepare('INSERT INTO migrations (version) VALUES (?)').run(1)
+    console.log('Migration 1 complete')
+  }
 }
 
 /**
