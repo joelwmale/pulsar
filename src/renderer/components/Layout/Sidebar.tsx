@@ -39,8 +39,17 @@ export function Sidebar({ children, onOpenSettings, onOpenInstructions, portRefr
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-800 text-xs text-gray-500 text-center">
-        Port 2500 • 127.0.0.1
+      <div className="border-t border-gray-800">
+        <button
+          onClick={onOpenInstructions}
+          className="w-full p-3 text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+          title="Click for setup instructions"
+        >
+          <span>Port {port} • 127.0.0.1</span>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </button>
         <button
           onClick={onOpenSettings}
           className="w-full p-3 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"

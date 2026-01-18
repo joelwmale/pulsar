@@ -4,12 +4,17 @@ import { Sidebar } from './components/Layout/Sidebar'
 import { MailboxList } from './components/Mailbox/MailboxList'
 import { EmailList } from './components/Mailbox/EmailList'
 import { EmailViewer } from './components/Email/EmailViewer'
+import { SettingsModal } from './components/Settings/SettingsModal'
+import { InstructionsModal } from './components/Instructions/InstructionsModal'
 import { useMailboxes } from './hooks/useMailboxes'
 import { useEmails } from './hooks/useEmails'
 
 export function App() {
   const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null)
   const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isInstructionsOpen, setIsInstructionsOpen] = useState(false)
+  const [portRefreshKey, setPortRefreshKey] = useState(0)
 
   const { mailboxes, loading: mailboxesLoading, refetch: refetchMailboxes } = useMailboxes()
   const { emails, loading: emailsLoading, refetch: refetchEmails } = useEmails(selectedMailboxId)
@@ -129,11 +134,18 @@ export function App() {
           </div>
         </div>
       }
-    />
+      />
+
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         onSave={handleSettingsSaved}
       />
+
+      <InstructionsModal
+        isOpen={isInstructionsOpen}
+        onClose={() => setIsInstructionsOpen(false)}
+      />
+    </>
   )
 }
