@@ -141,3 +141,14 @@ export function deleteEmail(emailId: number): void {
 
   console.log(`Deleted email ${emailId}`)
 }
+
+/**
+ * Get a single attachment by ID
+ */
+export function getAttachment(attachmentId: number): any {
+  const db = getDatabase()
+
+  return db
+    .prepare('SELECT * FROM attachments WHERE id = ?')
+    .get(attachmentId)
+}

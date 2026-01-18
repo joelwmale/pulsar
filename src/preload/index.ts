@@ -12,6 +12,8 @@ const api: WindowAPI = {
   markAsRead: (emailId: number) => ipcRenderer.invoke('mark-as-read', emailId),
   deleteEmail: (emailId: number) => ipcRenderer.invoke('delete-email', emailId),
   getTotalUnreadCount: () => ipcRenderer.invoke('get-total-unread-count'),
+  saveAttachment: (attachmentId: number, filename: string) => ipcRenderer.invoke('save-attachment', attachmentId, filename),
+  openAttachment: (attachmentId: number) => ipcRenderer.invoke('open-attachment', attachmentId),
 
   onNewEmail: (callback: (data: { mailboxId: number; emailId: number; from: string; subject: string }) => void) => {
     ipcRenderer.on('new-email', (_event, data) => callback(data))

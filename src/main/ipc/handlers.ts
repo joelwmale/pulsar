@@ -1,7 +1,10 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog, shell } from 'electron'
 import { getMailboxes, getTotalUnreadCount } from '../database/mailbox'
-import { getEmails, getEmail, markAsRead, deleteEmail } from '../database/email'
+import { getEmails, getEmail, markAsRead, deleteEmail, getAttachment } from '../database/email'
 import { updateBadgeCount } from '../index'
+import fs from 'fs'
+import path from 'path'
+import { app } from 'electron'
 
 /**
  * Register all IPC handlers for communication between main and renderer processes
@@ -65,6 +68,103 @@ export function registerIPCHandlers(): void {
       return getTotalUnreadCount()
     } catch (error) {
       console.error('Error getting total unread count:', error)
+      throw error
+    }
+  })
+
+  // Save attachment to disk
+  ipcMain.handle('save-attachment', async (_event, attachmentId: number, filename: string) => {
+    try {
+      console.log(`Attempting to save attachment ${attachmentId} with filename ${filename}`)
+      const attachment = getAttachment(attachmentId)
+
+      if (!attachment) {
+        console.error(`Attachment ${attachmentId} not found in database`)
+        throw new Error(`Attachment not found (ID: ${attachmentId})`)
+      }
+
+      console.log(`Found attachment: ${attachment.filename}, size: ${attachment.size}`)
+
+      if (!attachment.content) {
+        console.error(`Attachment ${attachmentId} has no content`)
+        throw new Error('Attachment content is empty')
+      }
+
+      // Show save dialog
+      const result = await dialog.showSaveDialog({
+        defaultPath: filename,
+        filters: [
+          { name: 'All Files', extensions: ['*'] }
+        ]
+      })
+
+      if (result.canceled || !result.filePath) {
+        console.log('Save dialog canceled')
+        return null
+      }
+
+      // Convert content to Buffer if needed
+      const buffer = Buffer.isBuffer(attachment.content)
+        ? attachment.content
+        : Buffer.from(attachment.content)
+
+      // Write file to disk
+      fs.writeFileSync(result.filePath, buffer)
+
+      console.log(`Saved attachment ${attachmentId} to ${result.filePath}`)
+      return result.filePath
+    } catch (error) {
+      console.error('Error saving attachment:', error)
+      throw error
+    }
+  })
+
+  // Open attachment (write to temp file and open with default app)
+  ipcMain.handle('open-attachment', async (_event, attachmentId: number) => {
+    try {
+      console.log(`Attempting to open attachment ${attachmentId}`)
+      const attachment = getAttachment(attachmentId)
+
+      if (!attachment) {
+        console.error(`Attachment ${attachmentId} not found in database`)
+        throw new Error(`Attachment not found (ID: ${attachmentId})`)
+      }
+
+      console.log(`Found attachment: ${attachment.filename}, size: ${attachment.size}`)
+
+      if (!attachment.content) {
+        console.error(`Attachment ${attachmentId} has no content`)
+        throw new Error('Attachment content is empty')
+      }
+
+      // Create temp directory for attachments
+      const tempDir = path.join(app.getPath('temp'), 'pulsar-attachments')
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true })
+      }
+
+      // Convert content to Buffer if needed
+      const buffer = Buffer.isBuffer(attachment.content)
+        ? attachment.content
+        : Buffer.from(attachment.content)
+
+      // Write to temp file
+      const tempFilePath = path.join(tempDir, attachment.filename)
+      fs.writeFileSync(tempFilePath, buffer)
+
+      console.log(`Wrote attachment to temp file: ${tempFilePath}`)
+
+      // Open with default application
+      const result = await shell.openPath(tempFilePath)
+
+      if (result) {
+        console.error(`Failed to open file: ${result}`)
+        throw new Error(`Failed to open file: ${result}`)
+      }
+
+      console.log(`Opened attachment ${attachmentId}`)
+    } catch (error) {
+      console.error('Error opening attachment:', error)
       throw error
     }
   })

@@ -1,5 +1,6 @@
 import React from 'react'
 import type { EmailDetail } from '../../../types'
+import { AttachmentList } from './AttachmentList'
 
 interface EmailHeaderProps {
   email: EmailDetail
@@ -34,12 +35,7 @@ export function EmailHeader({ email }: EmailHeaderProps) {
         </div>
 
         {email.attachments && email.attachments.length > 0 && (
-          <div className="flex items-center pt-2">
-            <span className="text-gray-500 w-14 flex-shrink-0">📎</span>
-            <span className="text-gray-700">
-              {email.attachments.length} attachment{email.attachments.length > 1 ? 's' : ''}
-            </span>
-          </div>
+          <AttachmentList attachments={email.attachments} />
         )}
       </div>
     </div>

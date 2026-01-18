@@ -19,10 +19,6 @@ export function startSMTPServer(): Promise<void> {
       name: 'Pulsar Local SMTP Server',
       banner: 'Welcome to Pulsar - Local Mail Server',
 
-      // Listen on localhost only (security)
-      host: '127.0.0.1',
-      port: 2500,
-
       // Authentication
       authOptional: false, // Require authentication
       onAuth: handleAuth,
@@ -39,12 +35,12 @@ export function startSMTPServer(): Promise<void> {
 
       // Connection limits
       maxClients: 10
-    })
+    } as any)
 
-    smtpServer.on('error', (err) => {
+    smtpServer.on('error', (err: Error & { code?: string }) => {
       console.error('SMTP Server Error:', err)
 
-      if ((err as any).code === 'EADDRINUSE') {
+      if (err.code === 'EADDRINUSE') {
         console.error('Port 2500 is already in use. Please close the other application using this port.')
         reject(new Error('Port 2500 is already in use'))
       }

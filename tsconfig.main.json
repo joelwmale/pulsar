@@ -6,7 +6,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "outDir": "dist-electron/main",
-    "rootDir": "src/main",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
@@ -18,5 +17,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/main/**/*"]
+  "include": ["src/main/**/*", "src/types/**/*"]
 }
