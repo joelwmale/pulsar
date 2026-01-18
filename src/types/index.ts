@@ -62,6 +62,9 @@ export interface WindowAPI {
   getTotalUnreadCount: () => Promise<number>
   saveAttachment: (attachmentId: number, filename: string) => Promise<string>
   openAttachment: (attachmentId: number) => Promise<void>
+  getSettings: () => Promise<Record<string, string>>
+  getSmtpPort: () => Promise<number>
+  updateSettings: (settings: Record<string, string>) => Promise<{ success: boolean }>
   onNewEmail: (callback: (data: { mailboxId: number; emailId: number; from: string; subject: string }) => void) => void
   removeNewEmailListener: () => void
 }

@@ -85,6 +85,20 @@ function createTables() {
 
   db.exec('CREATE INDEX IF NOT EXISTS idx_email_id ON attachments(email_id)')
 
+  // Settings table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT (datetime('now', 'localtime'))
+    )
+  `)
+
+  // Insert default settings if they don't exist
+  db.exec(`
+    INSERT OR IGNORE INTO settings (key, value) VALUES ('smtp_port', '2500');
+  `)
+
   console.log('Database tables created successfully')
 }
 

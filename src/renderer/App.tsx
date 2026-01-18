@@ -130,5 +130,10 @@ export function App() {
         </div>
       }
     />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={handleSettingsSaved}
+      />
   )
 }

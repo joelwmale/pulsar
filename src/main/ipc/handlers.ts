@@ -2,6 +2,8 @@ import { ipcMain, dialog, shell } from 'electron'
 import { getMailboxes, getTotalUnreadCount } from '../database/mailbox'
 import { getEmails, getEmail, markAsRead, deleteEmail, getAttachment } from '../database/email'
 import { updateBadgeCount } from '../index'
+import { getAllSettings, setSetting, getSmtpPort } from '../database/settings'
+import { restartSMTPServer, getCurrentPort } from '../smtp/server'
 import fs from 'fs'
 import path from 'path'
 import { app } from 'electron'
@@ -165,6 +167,55 @@ export function registerIPCHandlers(): void {
       console.log(`Opened attachment ${attachmentId}`)
     } catch (error) {
       console.error('Error opening attachment:', error)
+      throw error
+    }
+  })
+
+
+  // Get all settings
+  ipcMain.handle('get-settings', async () => {
+    try {
+      return getAllSettings()
+    } catch (error) {
+      console.error('Error getting settings:', error)
+      throw error
+    }
+  })
+
+  // Get current SMTP port
+  ipcMain.handle('get-smtp-port', async () => {
+    try {
+      return getCurrentPort()
+    } catch (error) {
+      console.error('Error getting SMTP port:', error)
+      throw error
+    }
+  })
+
+  // Update settings
+  ipcMain.handle('update-settings', async (_event, settings: Record<string, string>) => {
+    try {
+      console.log('Updating settings:', settings)
+
+      // Check if SMTP port is changing
+      const newPort = settings.smtp_port ? parseInt(settings.smtp_port, 10) : null
+      const currentPort = getSmtpPort()
+
+      // Update all settings
+      for (const [key, value] of Object.entries(settings)) {
+        setSetting(key, value)
+      }
+
+      // Restart SMTP server if port changed
+      if (newPort && newPort !== currentPort) {
+        console.log(`SMTP port changed from ${currentPort} to ${newPort}, restarting server...`)
+        await restartSMTPServer(newPort)
+        console.log('SMTP server restarted successfully')
+      }
+
+      return { success: true }
+    } catch (error) {
+      console.error('Error updating settings:', error)
       throw error
     }
   })
