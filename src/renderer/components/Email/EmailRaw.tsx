@@ -8,6 +8,14 @@ interface EmailRawProps {
 export function EmailRaw({ email }: EmailRawProps) {
   const [copied, setCopied] = useState(false)
 
+  if (!email || !email.raw_source) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-gray-500">No raw source available</div>
+      </div>
+    )
+  }
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(email.raw_source)
@@ -19,7 +27,7 @@ export function EmailRaw({ email }: EmailRawProps) {
   }
 
   return (
-    <div className="p-6 flex flex-col h-full">
+    <div className="h-full overflow-hidden p-6 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-gray-700">Raw Email Source</h3>
         <button

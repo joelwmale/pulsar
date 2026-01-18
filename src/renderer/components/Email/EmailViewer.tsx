@@ -12,7 +12,7 @@ interface EmailViewerProps {
 export function EmailViewer({ emailId }: EmailViewerProps) {
   const [email, setEmail] = useState<EmailDetail | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'formatted' | 'headers' | 'raw'>('formatted')
+  const [activeTab, setActiveTab] = useState<'email' | 'headers' | 'raw'>('email')
 
   useEffect(() => {
     const fetchEmail = async () => {
@@ -52,7 +52,7 @@ export function EmailViewer({ emailId }: EmailViewerProps) {
   }
 
   const tabs = [
-    { id: 'formatted' as const, label: 'Formatted' },
+    { id: 'email' as const, label: 'Email' },
     { id: 'headers' as const, label: 'Headers' },
     { id: 'raw' as const, label: 'Raw' }
   ]
@@ -85,10 +85,10 @@ export function EmailViewer({ emailId }: EmailViewerProps) {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden">
-        {activeTab === 'formatted' && <EmailBody email={email} />}
-        {activeTab === 'headers' && <EmailHeaders email={email} />}
-        {activeTab === 'raw' && <EmailRaw email={email} />}
+      <div className="flex-1 overflow-hidden bg-gray-50" key={activeTab}>
+        {activeTab === 'email' && <EmailBody key="body" email={email} />}
+        {activeTab === 'headers' && <EmailHeaders key="headers" email={email} />}
+        {activeTab === 'raw' && <EmailRaw key="raw" email={email} />}
       </div>
     </div>
   )

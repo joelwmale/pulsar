@@ -12,14 +12,14 @@ export function EmailBody({ email }: EmailBodyProps) {
 
   if (!hasHtml && !hasText) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        (No content)
+      <div className="h-full flex items-center justify-center">
+        <div className="text-gray-500">(No content)</div>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Toggle between HTML and text if both exist */}
       {hasHtml && hasText && (
         <div className="flex gap-2 p-3 bg-gray-50 border-b border-gray-200">
