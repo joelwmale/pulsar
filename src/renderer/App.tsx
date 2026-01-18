@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppLayout } from './components/Layout/AppLayout'
 import { Sidebar } from './components/Layout/Sidebar'
 import { MailboxList } from './components/Mailbox/MailboxList'
@@ -11,8 +11,8 @@ export function App() {
   const [selectedMailboxId, setSelectedMailboxId] = useState<number | null>(null)
   const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null)
 
-  const { mailboxes, loading: mailboxesLoading } = useMailboxes()
-  const { emails, loading: emailsLoading } = useEmails(selectedMailboxId)
+  const { mailboxes, loading: mailboxesLoading, refetch: refetchMailboxes } = useMailboxes()
+  const { emails, loading: emailsLoading, refetch: refetchEmails } = useEmails(selectedMailboxId)
 
   const handleSelectMailbox = (mailboxId: number) => {
     setSelectedMailboxId(mailboxId)
@@ -22,6 +22,45 @@ export function App() {
   const handleSelectEmail = (emailId: number) => {
     setSelectedEmailId(emailId)
   }
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+
+    // Listen for new emails and show notifications
+    window.api.onNewEmail((data) => {
+      // Refresh mailboxes list (to update email counts)
+      refetchMailboxes()
+
+      // Refresh emails if we're viewing the mailbox that received the email
+      if (data.mailboxId === selectedMailboxId) {
+        refetchEmails()
+      }
+
+      // Show notification
+      if (Notification.permission === 'granted') {
+        const notification = new Notification('New Email Received', {
+          body: `From: ${data.from}\nSubject: ${data.subject}`,
+          tag: `email-${data.emailId}`, // Prevent duplicate notifications
+          requireInteraction: false
+        })
+
+        notification.onclick = () => {
+          // Open the email when notification is clicked
+          setSelectedMailboxId(data.mailboxId)
+          setSelectedEmailId(data.emailId)
+          // Focus the window
+          window.focus()
+        }
+      }
+    })
+
+    return () => {
+      window.api.removeNewEmailListener()
+    }
+  }, [selectedMailboxId, refetchMailboxes, refetchEmails])
 
   return (
     <AppLayout

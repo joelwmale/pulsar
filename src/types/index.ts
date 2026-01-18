@@ -58,7 +58,7 @@ export interface WindowAPI {
   getEmail: (emailId: number) => Promise<EmailDetail>
   markAsRead: (emailId: number) => Promise<void>
   deleteEmail: (emailId: number) => Promise<void>
-  onNewEmail: (callback: (data: { mailboxId: number }) => void) => void
+  onNewEmail: (callback: (data: { mailboxId: number; emailId: number; from: string; subject: string }) => void) => void
   removeNewEmailListener: () => void
 }
 

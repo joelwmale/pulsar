@@ -22,15 +22,6 @@ export function useMailboxes() {
 
   useEffect(() => {
     fetchMailboxes()
-
-    // Listen for new emails and refresh mailboxes
-    window.api.onNewEmail(() => {
-      fetchMailboxes()
-    })
-
-    return () => {
-      window.api.removeNewEmailListener()
-    }
   }, [])
 
   return { mailboxes, loading, error, refetch: fetchMailboxes }

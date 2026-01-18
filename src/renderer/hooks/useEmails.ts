@@ -27,18 +27,6 @@ export function useEmails(mailboxId: number | null) {
 
   useEffect(() => {
     fetchEmails()
-
-    // Listen for new emails
-    window.api.onNewEmail((data) => {
-      // Only refetch if it's for our mailbox
-      if (data.mailboxId === mailboxId) {
-        fetchEmails()
-      }
-    })
-
-    return () => {
-      window.api.removeNewEmailListener()
-    }
   }, [mailboxId])
 
   return { emails, loading, error, refetch: fetchEmails }

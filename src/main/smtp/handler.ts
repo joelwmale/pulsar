@@ -70,7 +70,12 @@ export async function handleEmail(
     // Notify renderer process about new email
     const mainWindow = BrowserWindow.getAllWindows()[0]
     if (mainWindow) {
-      mainWindow.webContents.send('new-email', { mailboxId: mailbox.id })
+      mainWindow.webContents.send('new-email', {
+        mailboxId: mailbox.id,
+        emailId: emailId,
+        from: emailData.from,
+        subject: emailData.subject || '(No Subject)'
+      })
     }
 
     console.log(`Email saved successfully (ID: ${emailId}, Mailbox: ${mailbox.username})`)
