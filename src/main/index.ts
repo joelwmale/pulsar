@@ -39,6 +39,7 @@ function createWindow() {
     minWidth: 1000,
     minHeight: 600,
     title: 'Pulsar - Local Mail Server',
+    icon: path.join(__dirname, '../../resources/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       nodeIntegration: false,

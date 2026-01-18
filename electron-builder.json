@@ -17,7 +17,7 @@
       "dmg",
       "zip"
     ],
-    "icon": "resources/icon.icns",
+    "icon": "resources/icon.png",
     "darkModeSupport": true
   },
   "win": {
@@ -31,7 +31,7 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "resources/icon.ico"
+    "icon": "resources/icon.png"
   },
   "linux": {
     "target": [
