@@ -13,7 +13,8 @@ node_modules
 # Build outputs
 dist
 dist-electron
-release
+release/
+out/
 
 # Editor directories and files
 .vscode/*

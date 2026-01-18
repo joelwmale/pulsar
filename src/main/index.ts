@@ -1,11 +1,120 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Tray, nativeImage } from 'electron'
 import path from 'path'
+import fs from 'fs'
 import { initDatabase, closeDatabase } from './database/db'
 import { startSMTPServer, stopSMTPServer } from './smtp/server'
 import { registerIPCHandlers } from './ipc/handlers'
 import { getTotalUnreadCount } from './database/mailbox'
 
 let mainWindow: BrowserWindow | null = null
+let tray: Tray | null = null
+
+/**
+ * Get the icon path for the current environment
+ */
+function getIconPath(): string {
+  // Try multiple possible locations for both dev and production
+  const possiblePaths = [
+    // Development mode - from project root
+    path.join(process.cwd(), 'images/icon.png'),
+    // Production mode - from app resources
+    process.resourcesPath ? path.join(process.resourcesPath, 'images/icon.png') : null,
+    // Production mode - from app path
+    path.join(app.getAppPath(), 'images/icon.png'),
+    // Fallback - relative to compiled main process
+    path.join(__dirname, '../../images/icon.png'),
+    path.join(__dirname, '../../../images/icon.png')
+  ].filter(Boolean) as string[]
+  
+  // Return first path that exists
+  for (const iconPath of possiblePaths) {
+    try {
+      if (fs.existsSync(iconPath)) {
+        console.log(`✓ Found icon at: ${iconPath}`)
+        return iconPath
+      }
+    } catch (error) {
+      // Continue to next path
+    }
+  }
+  
+  // If none found, log warning and return first path
+  console.warn(`⚠ Icon not found, trying: ${possiblePaths[0]}`)
+  return possiblePaths[0] || path.join(process.cwd(), 'images/icon.png')
+}
+
+/**
+ * Get the tray icon path (prefer template icon for macOS)
+ */
+function getTrayIconPath(): string {
+  if (process.platform === 'darwin') {
+    // Try to find template icon first (for better macOS appearance)
+    const templatePaths = [
+      path.join(process.cwd(), 'images/icon.png'),
+      path.join(process.cwd(), 'images/icon.png'),
+      path.join(app.getAppPath(), 'images/icon.png'),
+      process.resourcesPath ? path.join(process.resourcesPath, 'images/icon.png') : null
+    ].filter(Boolean) as string[]
+    
+    for (const templatePath of templatePaths) {
+      if (fs.existsSync(templatePath)) {
+        console.log(`✓ Found template icon at: ${templatePath}`)
+        return templatePath
+      }
+    }
+  }
+  
+  // Fallback to regular icon
+  return getIconPath()
+}
+
+/**
+ * Create the system tray icon
+ */
+function createTray() {
+  const iconPath = getTrayIconPath()
+  console.log(`Creating tray icon from: ${iconPath}`)
+  
+  const icon = nativeImage.createFromPath(iconPath)
+  
+  // Check if icon loaded successfully
+  if (icon.isEmpty()) {
+    console.error(`❌ Failed to load tray icon from: ${iconPath}`)
+    return
+  }
+  
+  // For macOS, set template image for better appearance
+  if (process.platform === 'darwin') {
+    icon.setTemplateImage(true)
+  }
+  
+  tray = new Tray(icon)
+  
+  // Set tooltip
+  tray.setToolTip('Pulsar - Local Mail Server')
+  
+  // Handle tray click
+  tray.on('click', () => {
+    if (mainWindow) {
+      if (mainWindow.isVisible()) {
+        mainWindow.hide()
+      } else {
+        mainWindow.show()
+        mainWindow.focus()
+      }
+    } else {
+      createWindow()
+    }
+  })
+  
+  // Handle right-click (context menu could be added here)
+  tray.on('right-click', () => {
+    if (mainWindow) {
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
+}
 
 /**
  * Update the dock/taskbar badge with unread count
@@ -39,7 +148,7 @@ function createWindow() {
     minWidth: 1000,
     minHeight: 600,
     title: 'Pulsar - Local Mail Server',
-    icon: path.join(__dirname, '../../resources/icon.png'),
+    icon: getIconPath(),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       nodeIntegration: false,
@@ -79,6 +188,25 @@ app.whenReady().then(async () => {
     // Start SMTP server
     await startSMTPServer()
     console.log('✓ SMTP server started')
+
+    // Set app icon (for macOS dock)
+    // In production, electron-builder sets this automatically from the .icns file
+    // In dev mode, we need to set it manually
+    if (process.platform === 'darwin') {
+      const iconPath = getIconPath()
+      console.log(`Setting dock icon from: ${iconPath}`)
+      const appIcon = nativeImage.createFromPath(iconPath)
+      if (!appIcon.isEmpty()) {
+        app.dock.setIcon(appIcon)
+        console.log('✓ Dock icon set')
+      } else {
+        console.error(`❌ Failed to load dock icon from: ${iconPath}`)
+      }
+    }
+
+    // Create tray icon
+    createTray()
+    console.log('✓ System tray icon created')
 
     // Create window
     createWindow()

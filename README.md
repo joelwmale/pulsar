@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/banner.png" alt="Pulsar" width="100%" />
+</p>
+
 # ✨ Pulsar - Local SMTP Mail Server
 
 A beautiful desktop application for capturing and viewing emails during local development. Perfect for testing email functionality in your applications without sending real emails.
@@ -136,6 +140,36 @@ By default, emails are stored in your user data directory:
 - **macOS**: `~/Library/Application Support/pulsar/pulsar.db`
 - **Windows**: `%APPDATA%/pulsar/pulsar.db`
 - **Linux**: `~/.config/pulsar/pulsar.db`
+
+## Releases
+
+To create a new release:
+
+1. Update the version in `package.json`
+2. Commit the changes: `git commit -am "Release v1.0.0"`
+3. Create a git tag: `git tag v1.0.0`
+4. Push the tag: `git push origin v1.0.0`
+5. Create a GitHub release from the tag
+
+The GitHub Actions workflow will automatically:
+- Build for macOS (DMG and ZIP)
+- Build for Windows (NSIS installer and portable EXE)
+- Build for Linux (AppImage and DEB)
+- Attach all binaries to the release
+
+You can also build locally:
+```bash
+# Build for current platform
+npm run package
+
+# Build for specific platform
+npm run package:mac
+npm run package:win
+npm run package:linux
+
+# Build for all platforms (requires macOS)
+npm run package:all
+```
 
 ## Development
 

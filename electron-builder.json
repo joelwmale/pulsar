@@ -4,12 +4,13 @@
   "copyright": "Copyright © 2026 Joel Male",
   "directories": {
     "output": "release",
-    "buildResources": "resources"
+    "buildResources": "."
   },
   "files": [
     "dist/**/*",
     "dist-electron/**/*",
-    "package.json"
+    "package.json",
+    "images/**/*"
   ],
   "mac": {
     "category": "public.app-category.developer-tools",
@@ -17,7 +18,7 @@
       "dmg",
       "zip"
     ],
-    "icon": "resources/icon.png",
+    "icon": "images/icon.icns",
     "darkModeSupport": true
   },
   "win": {
@@ -31,7 +32,7 @@
         "arch": ["x64"]
       }
     ],
-    "icon": "resources/icon.png"
+      "icon": "images/icon.png"
   },
   "linux": {
     "target": [
@@ -39,7 +40,7 @@
       "deb"
     ],
     "category": "Development",
-    "icon": "resources/icon.png"
+      "icon": "images/icon.png"
   },
   "nsis": {
     "oneClick": false,
