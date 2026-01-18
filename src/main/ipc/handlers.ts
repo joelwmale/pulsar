@@ -171,6 +171,20 @@ export function registerIPCHandlers(): void {
     }
   })
 
+  // Delete multiple emails
+  ipcMain.handle('delete-emails', async (_event, emailIds: number[]) => {
+    try {
+      console.log(`Deleting ${emailIds.length} emails`)
+      for (const emailId of emailIds) {
+        deleteEmail(emailId)
+      }
+      updateBadgeCount()
+      console.log(`Successfully deleted ${emailIds.length} emails`)
+    } catch (error) {
+      console.error('Error deleting emails:', error)
+      throw error
+    }
+  })
 
   // Get all settings
   ipcMain.handle('get-settings', async () => {

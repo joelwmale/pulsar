@@ -7,12 +7,27 @@ import { EmailRaw } from './EmailRaw'
 
 interface EmailViewerProps {
   emailId: number
+  onDelete?: () => void
 }
 
-export function EmailViewer({ emailId }: EmailViewerProps) {
+export function EmailViewer({ emailId, onDelete }: EmailViewerProps) {
   const [email, setEmail] = useState<EmailDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'email' | 'headers' | 'raw'>('email')
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this email?')) {
+      return
+    }
+
+    try {
+      await window.api.deleteEmail(emailId)
+      onDelete?.()
+    } catch (error) {
+      console.error('Failed to delete email:', error)
+      alert('Failed to delete email. Please try again.')
+    }
+  }
 
   useEffect(() => {
     const fetchEmail = async () => {
@@ -60,7 +75,7 @@ export function EmailViewer({ emailId }: EmailViewerProps) {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Email Header */}
-      <EmailHeader email={email} />
+      <EmailHeader email={email} onDelete={handleDelete} />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 bg-gray-50">

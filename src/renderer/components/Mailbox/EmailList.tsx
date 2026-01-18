@@ -4,14 +4,18 @@ import type { Email } from '../../../types'
 interface EmailListProps {
   emails: Email[]
   selectedEmailId: number | null
+  selectedIds: Set<number>
   onSelectEmail: (emailId: number) => void
+  onToggleSelection: (emailId: number) => void
   loading: boolean
 }
 
 export function EmailList({
   emails,
   selectedEmailId,
+  selectedIds,
   onSelectEmail,
+  onToggleSelection,
   loading
 }: EmailListProps) {
   if (loading) {
@@ -55,17 +59,35 @@ export function EmailList({
 
   return (
     <div className="divide-y divide-gray-200">
-      {emails.map((email) => (
-        <button
-          key={email.id}
-          onClick={() => onSelectEmail(email.id)}
-          className={`
-            w-full p-4 text-left transition-colors hover:bg-gray-50
-            ${selectedEmailId === email.id ? 'bg-blue-50 border-l-4 border-blue-500' : 'border-l-4 border-transparent'}
-          `}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
+      {emails.map((email) => {
+        const isSelected = selectedIds.has(email.id)
+
+        return (
+          <div
+            key={email.id}
+            className={`
+              w-full p-4 transition-colors hover:bg-gray-50 flex items-start gap-3
+              ${selectedEmailId === email.id ? 'bg-blue-50 border-l-4 border-blue-500' : 'border-l-4 border-transparent'}
+            `}
+          >
+            {/* Checkbox */}
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={(e) => {
+                e.stopPropagation()
+                onToggleSelection(email.id)
+              }}
+              className="mt-1 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            />
+
+            {/* Email content - clickable */}
+            <button
+              onClick={() => onSelectEmail(email.id)}
+              className="flex-1 min-w-0 text-left"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
               {/* From */}
               <div className={`text-sm truncate ${!email.is_read ? 'font-semibold' : 'font-normal'}`}>
                 {email.from_address}
@@ -101,7 +123,9 @@ export function EmailList({
             </div>
           </div>
         </button>
-      ))}
+      </div>
+        )
+      })}
     </div>
   )
 }
