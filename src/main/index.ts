@@ -6,6 +6,9 @@ import { startSMTPServer, stopSMTPServer } from './smtp/server'
 import { registerIPCHandlers } from './ipc/handlers'
 import { getTotalUnreadCount } from './database/mailbox'
 
+// Set app name before app is ready
+app.name = 'Pulsar'
+
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 
@@ -163,8 +166,8 @@ function createWindow() {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
     mainWindow.webContents.openDevTools()
   } else {
-    // Production mode
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    // Production mode - go up two levels from dist-electron/main to reach dist
+    mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'))
   }
 
   mainWindow.on('closed', () => {

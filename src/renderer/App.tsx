@@ -100,8 +100,7 @@ export function App() {
         const notification = new Notification('New Email Received', {
           body: `From: ${data.from}\nSubject: ${data.subject}`,
           tag: `email-${data.emailId}`, // Prevent duplicate notifications
-          requireInteraction: false,
-          icon: '/icon.png'
+          requireInteraction: false
         })
 
         notification.onclick = () => {
