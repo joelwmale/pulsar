@@ -76,16 +76,19 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
       ],
       "icon": "images/icon.icns"
     },
+    "dmg": {
+      "format": "ULFO",
+      "writeUpdateInfo": false
+    },
     "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
+      "target": "nsis",
       "icon": "images/icon.png"
     },
     "linux": {
