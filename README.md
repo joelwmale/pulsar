@@ -10,8 +10,6 @@ Pulsar is a modern desktop application that captures and displays emails sent by
 
 Perfect for developers working with Laravel, Node.js, Ruby on Rails, PHP, and any other framework that sends emails.
 
-![Pulsar Screenshot](https://via.placeholder.com/800x500?text=Pulsar+Screenshot)
-
 ## Why Pulsar?
 
 When developing applications that send emails, you need a way to test email functionality without:

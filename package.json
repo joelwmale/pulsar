@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A local SMTP mail server for development - capture and view emails in a beautiful desktop app",
   "main": "dist-electron/main/index.js",
-  "author": "Joel Male",
+  "author": "Joel Male <joel@joelmale.com>",
   "license": "MIT",
   "private": false,
   "repository": {
