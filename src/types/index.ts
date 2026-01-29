@@ -63,6 +63,7 @@ export interface WindowAPI {
   getTotalUnreadCount: () => Promise<number>
   saveAttachment: (attachmentId: number, filename: string) => Promise<string>
   openAttachment: (attachmentId: number) => Promise<void>
+  openUrl: (url: string) => Promise<void>
   getSettings: () => Promise<Record<string, string>>
   getSmtpPort: () => Promise<number>
   updateSettings: (settings: Record<string, string>) => Promise<{ success: boolean }>

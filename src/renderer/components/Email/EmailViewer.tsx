@@ -8,9 +8,10 @@ import { EmailRaw } from './EmailRaw'
 interface EmailViewerProps {
   emailId: number
   onDelete?: () => void
+  onRead?: () => void
 }
 
-export function EmailViewer({ emailId, onDelete }: EmailViewerProps) {
+export function EmailViewer({ emailId, onDelete, onRead }: EmailViewerProps) {
   const [email, setEmail] = useState<EmailDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'email' | 'headers' | 'raw'>('email')
@@ -39,6 +40,7 @@ export function EmailViewer({ emailId, onDelete }: EmailViewerProps) {
         // Mark as read
         if (data && !data.is_read) {
           await window.api.markAsRead(emailId)
+          onRead?.()
         }
       } catch (err) {
         console.error('Error fetching email:', err)

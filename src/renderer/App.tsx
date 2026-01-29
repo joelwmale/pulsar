@@ -79,6 +79,12 @@ export function App() {
     refetchEmails()
   }
 
+  const handleEmailRead = () => {
+    // Refresh data to update unread counts and email status
+    refetchMailboxes()
+    refetchEmails()
+  }
+
   // Request notification permission on mount
   useEffect(() => {
     if (Notification.permission === 'default') {
@@ -196,7 +202,7 @@ export function App() {
           {/* Email viewer panel */}
           <div className="flex-1 bg-gray-100 overflow-hidden">
             {selectedEmailId ? (
-              <EmailViewer emailId={selectedEmailId} onDelete={handleEmailDeleted} />
+              <EmailViewer emailId={selectedEmailId} onDelete={handleEmailDeleted} onRead={handleEmailRead} />
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center text-gray-400">
