@@ -58,6 +58,7 @@ export interface WindowAPI {
   getEmails: (mailboxId: number) => Promise<Email[]>
   getEmail: (emailId: number) => Promise<EmailDetail>
   markAsRead: (emailId: number) => Promise<void>
+  markAllAsRead: (mailboxId: number) => Promise<void>
   deleteEmail: (emailId: number) => Promise<void>
   deleteEmails: (emailIds: number[]) => Promise<void>
   getTotalUnreadCount: () => Promise<number>

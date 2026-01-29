@@ -131,6 +131,17 @@ export function markAsRead(emailId: number): void {
 }
 
 /**
+ * Mark all emails in a mailbox as read
+ */
+export function markAllAsRead(mailboxId: number): void {
+  const db = getDatabase()
+
+  const result = db.prepare('UPDATE emails SET is_read = 1 WHERE mailbox_id = ? AND is_read = 0').run(mailboxId)
+
+  console.log(`Marked ${result.changes} emails as read in mailbox ${mailboxId}`)
+}
+
+/**
  * Delete an email
  */
 export function deleteEmail(emailId: number): void {

@@ -1,6 +1,6 @@
 import { ipcMain, dialog, shell } from 'electron'
 import { getMailboxes, getTotalUnreadCount } from '../database/mailbox'
-import { getEmails, getEmail, markAsRead, deleteEmail, getAttachment } from '../database/email'
+import { getEmails, getEmail, markAsRead, markAllAsRead, deleteEmail, getAttachment } from '../database/email'
 import { updateBadgeCount } from '../index'
 import { getAllSettings, setSetting, getSmtpPort } from '../database/settings'
 import { restartSMTPServer, getCurrentPort } from '../smtp/server'
@@ -49,6 +49,17 @@ export function registerIPCHandlers(): void {
       updateBadgeCount()
     } catch (error) {
       console.error('Error marking email as read:', error)
+      throw error
+    }
+  })
+
+  // Mark all emails in a mailbox as read
+  ipcMain.handle('mark-all-as-read', async (_event, mailboxId: number) => {
+    try {
+      markAllAsRead(mailboxId)
+      updateBadgeCount()
+    } catch (error) {
+      console.error('Error marking all emails as read:', error)
       throw error
     }
   })

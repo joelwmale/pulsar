@@ -85,6 +85,19 @@ export function App() {
     refetchEmails()
   }
 
+  const handleMarkAllAsRead = async () => {
+    if (!selectedMailboxId) return
+
+    try {
+      await window.api.markAllAsRead(selectedMailboxId)
+      refetchMailboxes()
+      refetchEmails()
+    } catch (error) {
+      console.error('Failed to mark all as read:', error)
+      alert('Failed to mark all emails as read. Please try again.')
+    }
+  }
+
   // Request notification permission on mount
   useEffect(() => {
     if (Notification.permission === 'default') {
@@ -164,18 +177,35 @@ export function App() {
                         })()}
                       </p>
                     </div>
-                    {selectedEmailIds.size > 0 && (
-                      <button
-                        onClick={handleDeleteSelected}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                        title={`Delete ${selectedEmailIds.size} email${selectedEmailIds.size === 1 ? '' : 's'}`}
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete ({selectedEmailIds.size})
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const mailbox = mailboxes.find((m) => m.id === selectedMailboxId)
+                        return mailbox && mailbox.unread_count > 0 && selectedEmailIds.size === 0 && (
+                          <button
+                            onClick={handleMarkAllAsRead}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                            title="Mark all emails as read"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Mark all as read
+                          </button>
+                        )
+                      })()}
+                      {selectedEmailIds.size > 0 && (
+                        <button
+                          onClick={handleDeleteSelected}
+                          className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                          title={`Delete ${selectedEmailIds.size} email${selectedEmailIds.size === 1 ? '' : 's'}`}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete ({selectedEmailIds.size})
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto">

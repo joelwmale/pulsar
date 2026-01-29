@@ -10,6 +10,7 @@ const api: WindowAPI = {
   getEmails: (mailboxId: number) => ipcRenderer.invoke('get-emails', mailboxId),
   getEmail: (emailId: number) => ipcRenderer.invoke('get-email', emailId),
   markAsRead: (emailId: number) => ipcRenderer.invoke('mark-as-read', emailId),
+  markAllAsRead: (mailboxId: number) => ipcRenderer.invoke('mark-all-as-read', mailboxId),
   deleteEmail: (emailId: number) => ipcRenderer.invoke('delete-email', emailId),
   deleteEmails: (emailIds: number[]) => ipcRenderer.invoke('delete-emails', emailIds),
   getTotalUnreadCount: () => ipcRenderer.invoke('get-total-unread-count'),
