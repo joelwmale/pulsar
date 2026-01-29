@@ -186,6 +186,17 @@ export function registerIPCHandlers(): void {
     }
   })
 
+  // Open URL in default browser
+  ipcMain.handle('open-url', async (_event, url: string) => {
+    try {
+      console.log(`Opening URL in default browser: ${url}`)
+      await shell.openExternal(url)
+    } catch (error) {
+      console.error('Error opening URL:', error)
+      throw error
+    }
+  })
+
   // Get all settings
   ipcMain.handle('get-settings', async () => {
     try {

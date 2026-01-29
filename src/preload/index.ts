@@ -15,6 +15,7 @@ const api: WindowAPI = {
   getTotalUnreadCount: () => ipcRenderer.invoke('get-total-unread-count'),
   saveAttachment: (attachmentId: number, filename: string) => ipcRenderer.invoke('save-attachment', attachmentId, filename),
   openAttachment: (attachmentId: number) => ipcRenderer.invoke('open-attachment', attachmentId),
+  openUrl: (url: string) => ipcRenderer.invoke('open-url', url),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   getSmtpPort: () => ipcRenderer.invoke('get-smtp-port'),
   updateSettings: (settings: Record<string, string>) => ipcRenderer.invoke('update-settings', settings),

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { EmailDetail } from '../../../types'
 
 interface EmailBodyProps {
@@ -9,6 +9,33 @@ export function EmailBody({ email }: EmailBodyProps) {
   const hasHtml = !!email.html_content
   const hasText = !!email.text_content
   const [viewMode, setViewMode] = useState<'html' | 'text'>(hasHtml ? 'html' : 'text')
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'open-link' && event.data.url) {
+        window.api.openUrl(event.data.url)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
+
+  const getHtmlWithLinkHandler = (htmlContent: string) => {
+    const script = `
+      <script>
+        document.addEventListener('click', function(e) {
+          const target = e.target.closest('a');
+          if (target && target.href) {
+            e.preventDefault();
+            window.parent.postMessage({ type: 'open-link', url: target.href }, '*');
+          }
+        }, true);
+      </script>
+    `
+    return htmlContent + script
+  }
 
   if (!hasHtml && !hasText) {
     return (
@@ -50,8 +77,9 @@ export function EmailBody({ email }: EmailBodyProps) {
       <div className="flex-1 overflow-auto p-6">
         {viewMode === 'html' && hasHtml ? (
           <iframe
-            sandbox="allow-same-origin"
-            srcDoc={email.html_content || ''}
+            ref={iframeRef}
+            sandbox="allow-same-origin allow-scripts"
+            srcDoc={getHtmlWithLinkHandler(email.html_content || '')}
             className="w-full h-full min-h-[600px] border-0 bg-white"
             title="Email HTML content"
           />
